@@ -9,6 +9,7 @@ namespace OpenShl
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
+            AutoConnect = true;
         }
 
         [Required] 
