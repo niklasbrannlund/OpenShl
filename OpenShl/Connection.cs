@@ -14,17 +14,19 @@ namespace OpenShl
         private const string Auth = "/oauth2/token";
         private DateTime _expiresAt;
         private string _token;
+        private HttpClient _client;
 
         public Connection(ConnectionOptions options)
         {
             _options = options;
+            _client = new HttpClient();
         }
 
         public async Task Connect()
         {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
-            var res = await client.PostAsync(BaseUrl + Auth, new FormUrlEncodedContent(new[]
+            _client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
+            var res = await _client.PostAsync(BaseUrl + Auth, new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("client_id", _options.ClientId),
                 new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
@@ -43,5 +45,27 @@ namespace OpenShl
         }
 
         public bool IsConnected() => !string.IsNullOrEmpty(_token) && DateTime.UtcNow <= _expiresAt;
+
+        private async Task<string> _fetch(string path)
+        {
+            if (!IsConnected())
+                return "Accesstoken has not been fetched";
+
+            _client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
+            _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_token}");
+            var result = await _client.GetStringAsync(BaseUrl + path);
+            return result;
+        }
+
+        public async Task<string> Get(string path)
+        {
+            if (!IsConnected() && _options.AutoConnect)
+            {
+                await Connect();
+            }
+
+            return await _fetch(path);
+        }
     }
 }
