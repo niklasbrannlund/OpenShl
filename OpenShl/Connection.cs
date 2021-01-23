@@ -10,10 +10,10 @@ namespace OpenShl
     public class Connection
     {
         private readonly ConnectionOptions _options;
-        private AccessToken _accessToken;
-        
         private const string BaseUrl = "https://openapi.shl.se";
         private const string Auth = "/oauth2/token";
+        private DateTime _expiresAt;
+        private string _token;
 
         public Connection(ConnectionOptions options)
         {
@@ -37,7 +37,9 @@ namespace OpenShl
             }
 
             var stringContent = await res.Content.ReadAsStringAsync();
-            _accessToken = JsonSerializer.Deserialize<AccessToken>(stringContent);
+            var accessToken = JsonSerializer.Deserialize<AccessToken>(stringContent);
+            _expiresAt = DateTime.UtcNow.AddSeconds(accessToken.ExpiresIn);
+            _token = accessToken.Token;
         }
     }
 }
