@@ -41,5 +41,7 @@ namespace OpenShl
             _expiresAt = DateTime.UtcNow.AddSeconds(accessToken.ExpiresIn);
             _token = accessToken.Token;
         }
+
+        public bool IsConnected() => !string.IsNullOrEmpty(_token) && DateTime.UtcNow <= _expiresAt;
     }
 }
