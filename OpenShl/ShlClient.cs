@@ -16,5 +16,10 @@ namespace OpenShl
         {
             return await _connection.Get("/teams");
         }
+
+        public async Task<string> Team(string teamId)
+        {
+            return await _connection.Get($"/teams/{teamId}");
+        }
     }
 }
