@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Mime;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OpenShl.Models;
@@ -16,23 +17,19 @@ namespace OpenShl
         private string _token;
         private HttpClient _client;
 
-        public Connection(ConnectionOptions options)
+        public Connection(ConnectionOptions options, HttpClient client)
         {
             _options = options;
-            _client = new HttpClient();
+            _client = client;
         }
 
         public async Task Connect()
         {
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
-            var res = await _client.PostAsync(BaseUrl + Auth, new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("client_id", _options.ClientId),
-                new KeyValuePair<string, string>("client_secret", _options.ClientSecret),
-                new KeyValuePair<string, string>("grant_type", "client_credentials")
-            }));
-
+            
+            var content = new StringContent(JsonSerializer.Serialize(_options), Encoding.UTF8, MediaTypeNames.Application.Json);
+            var res = await _client.PostAsync(BaseUrl + Auth, content);
             if (!res.IsSuccessStatusCode)
             {
                 throw new Exception($"Error when trying to authenticate: {(int) res.StatusCode} {res.ReasonPhrase}");

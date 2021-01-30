@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace OpenShl
@@ -7,9 +8,9 @@ namespace OpenShl
     {
         private readonly Connection _connection;
 
-        public ShlClient(Connection connection)
+        public ShlClient(string clientId, string clientSecret)
         {
-            _connection = connection;
+            _connection = new Connection(new ConnectionOptions(clientId, clientSecret), new HttpClient());
         }
 
         public async Task<string> Teams()
