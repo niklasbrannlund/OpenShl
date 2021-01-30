@@ -12,6 +12,7 @@ using OpenShl.Models;
 
 namespace Tests
 {
+    [TestFixture]
     public class ConnectionTest
     {
         private Connection _connection;
