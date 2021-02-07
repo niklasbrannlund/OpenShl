@@ -2,27 +2,28 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
-
+  vmImage: 'ubuntu-latest'
+ 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-
+ 
 steps:
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   inputs:
-    restoreSolution: '$(solution)'
-
-- task: VSBuild@1
+    command: 'restore'
+    projects: '**/*.csproj'
+  displayName: 'Restore Nuget Packages'
+ 
+- task: DotNetCoreCLI@2
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--no-restore'
+  displayName: 'Build projects'
+ 
+- task: DotNetCoreCLI@2
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'test'
+    projects: '**/*Tests.csproj'
+    arguments: '--no-restore'
+  displayName: 'Run Tests'
