@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Mime;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using OpenShl.Models;
@@ -27,8 +26,8 @@ namespace OpenShl
         {
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
-            
-            var content = new StringContent(JsonSerializer.Serialize(_options), Encoding.UTF8, MediaTypeNames.Application.Json);
+
+            var content = CreateRequestContent();
             var res = await _client.PostAsync(BaseUrl + Auth, content);
             if (!res.IsSuccessStatusCode)
             {
@@ -63,6 +62,16 @@ namespace OpenShl
             }
 
             return await _fetch(path);
+        }
+        
+        private HttpContent CreateRequestContent()
+        {
+            return new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("client_id", _options.ClientId),	           
+                new KeyValuePair<string, string>("client_secret", _options.ClientSecret),	
+                new KeyValuePair<string, string>("grant_type", "client_credentials")
+            });
         }
     }
 }
