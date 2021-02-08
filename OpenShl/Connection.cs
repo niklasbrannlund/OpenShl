@@ -45,7 +45,8 @@ namespace OpenShl
         private async Task<string> _fetch(string path)
         {
             if (!IsConnected())
-                return "Accesstoken has not been fetched";
+                throw new Exception(
+                    "No auth-token has been retrieved. Either set AutoConnect-flag to true or explicitly call Connect() before you make this call");
 
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");

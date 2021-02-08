@@ -76,6 +76,35 @@ namespace Tests
             // assert
             Assert.That(clientId, Is.EqualTo($"client_id={_myClientId}"), "Wrong ClientId sent in request");
             Assert.That(clientSecret, Is.EqualTo($"client_secret={_myClientSecret}"), "Wrong ClientSecret sent in request");
+        }
+
+        [Test]
+        public void VerifyConnectOnlyMakesOneRequest()
+        {
+            // act
+            _connection.Connect();
+
+            // assert
+            _httpMessageHandlerMock.Protected().Verify("SendAsync", Times.Exactly(1),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Test]
+        public void VerifyGetThrowsExceptionIfAutoConnectIsFalseAndNoAuthTokenHasBeenFetched()
+        {
+            // arrange
+            var options = new ConnectionOptions {AutoConnect = false};
+            _connection = new Connection(options, new HttpClient(_httpMessageHandlerMock.Object));
+
+            // act 
+            var exc = Assert.ThrowsAsync<Exception>(() => _connection.Get("/api/endpoint"));
+
+            // assert
+            Assert.That(exc, Is.Not.Null, "Exception should be caught");
+            Assert.That(exc.Message,
+                Is.EqualTo(
+                    "No auth-token has been retrieved. Either set AutoConnect-flag to true or explicitly call Connect() before you make this call"));
 
         }
     }
