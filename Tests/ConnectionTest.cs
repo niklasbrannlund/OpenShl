@@ -69,11 +69,13 @@ namespace Tests
             // act
             await _connection.Connect();
             var content = await _sentRequestMessage.Content.ReadAsStringAsync();
-            var credentialsSentInRequest = JsonSerializer.Deserialize<ConnectionOptions>(content);
+            var credentialsSentInRequest = content.Split("&");
+            var clientId = credentialsSentInRequest[0];
+            var clientSecret = credentialsSentInRequest[1];
             
             // assert
-            Assert.That(credentialsSentInRequest.ClientId, Is.EqualTo(_myClientId), "Wrong ClientId sent in request");
-            Assert.That(credentialsSentInRequest.ClientSecret, Is.EqualTo(_myClientSecret), "Wrong ClientId sent in request");
+            Assert.That(clientId, Is.EqualTo($"client_id={_myClientId}"), "Wrong ClientId sent in request");
+            Assert.That(clientSecret, Is.EqualTo($"client_secret={_myClientSecret}"), "Wrong ClientSecret sent in request");
 
         }
     }
