@@ -51,7 +51,12 @@ namespace OpenShl
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Add("User-Agent", "OpenShlC#");
             _client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_token}");
-            var result = await _client.GetStringAsync(BaseUrl + path);
+            var response = await _client.GetAsync(BaseUrl + path);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Error when calling {path} endpoint\r\n {(int)response.StatusCode} - {response.ReasonPhrase}");
+            }
+            var result = await response.Content.ReadAsStringAsync();
             return result;
         }
 
